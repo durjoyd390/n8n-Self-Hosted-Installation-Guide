@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Self-Hosted Installation Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#ea4b71',
+                            600: '#e11d48',
+                            900: '#881337',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        pre::-webkit-scrollbar {
+            height: 8px;
+        }
+        pre::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans antialiased">
+
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-cloud-bolt text-brand-500 text-2xl"></i>
+            <span class="font-bold text-xl tracking-tight">n8n Docs</span>
+        </div>
+        <button onclick="toggleMenu()" class="text-slate-600 hover:text-brand-600 focus:outline-none">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="transform -translate-x-full lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 transition-transform duration-300 ease-in-out flex flex-col h-full border-r border-slate-800 shadow-xl lg:shadow-none">
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between lg:justify-start space-x-3">
+                <i class="fa-solid fa-cloud-bolt text-brand-500 text-2xl"></i>
+                <span class="font-bold text-xl text-white tracking-tight">n8n Hosting</span>
+                <button onclick="toggleMenu()" class="lg:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                <a href="#intro" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-info-circle w-5 text-center mr-2"></i> Introduction
+                </a>
+                <a href="#prerequisites" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-list-check w-5 text-center mr-2"></i> Prerequisites
+                </a>
+                <a href="#step1" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-shield-halved w-5 text-center mr-2"></i> 1. Server & Firewall
+                </a>
+                <a href="#step2" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-brands fa-docker w-5 text-center mr-2"></i> 2. Install Docker
+                </a>
+                <a href="#step3" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-folder-open w-5 text-center mr-2"></i> 3. Setup Directory
+                </a>
+                <a href="#step4" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-file-code w-5 text-center mr-2"></i> 4. Config Files
+                </a>
+                <a href="#step5" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-rocket w-5 text-center mr-2"></i> 5. Launch
+                </a>
+                <a href="#verify" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-check-double w-5 text-center mr-2"></i> 6. Verify
+                </a>
+                <a href="#maintenance" class="nav-link block px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-wrench w-5 text-center mr-2"></i> Maintenance
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto h-full bg-white lg:bg-gray-50 relative scroll-container">
+            <div class="max-w-4xl mx-auto px-4 py-8 lg:px-12 lg:py-12">
+                
+                <!-- Header Section -->
+                <section id="intro" class="mb-12">
+                    <div class="bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-2xl p-8 shadow-lg">
+                        <h1 class="text-3xl lg:text-4xl font-extrabold mb-4">n8n Self-Hosted Installation Guide</h1>
+                        <p class="text-brand-100 text-lg leading-relaxed">
+                            A complete step-by-step guide to deploying n8n on a VPS using Docker and Caddy for automatic SSL management.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Prerequisites -->
+                <section id="prerequisites" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                        <span class="bg-brand-100 text-brand-600 rounded-lg p-2 mr-3 text-lg"><i class="fa-solid fa-list-check"></i></span>
+                        Prerequisites
+                    </h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <i class="fa-solid fa-server text-brand-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong class="block text-slate-900">A Linux VPS</strong>
+                                <span class="text-slate-600 text-sm">Ubuntu 20.04 or 22.04 LTS is recommended.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <i class="fa-solid fa-globe text-brand-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong class="block text-slate-900">A Domain Name</strong>
+                                <span class="text-slate-600 text-sm">e.g., <code>example.com</code></span>
+                            </div>
+                        </li>
+                        <li class="flex items-start bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <i class="fa-solid fa-network-wired text-brand-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong class="block text-slate-900">DNS Records</strong>
+                                <span class="text-slate-600 text-sm block mb-2">Create an <strong>A Record</strong> at your registrar:</span>
+                                <div class="bg-gray-100 rounded p-2 text-sm font-mono text-slate-700">
+                                    <div class="flex justify-between mb-1"><span>Host:</span> <span>n8n (or @)</span></div>
+                                    <div class="flex justify-between"><span>Value:</span> <span>[Your VPS IP]</span></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Step 1 -->
+                <section id="step1" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
+                        Server Preparation & Firewall
+                    </h2>
+                    <p class="text-slate-600 mb-4">Update your system and <strong>open ports 80 & 443</strong>. This is critical for Caddy to generate your SSL certificate automatically.</p>
+                    
+                    <div class="relative group">
+                        <div class="absolute right-2 top-2">
+                            <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="bg-slate-900 text-emerald-400 p-4 rounded-lg overflow-x-auto text-sm font-mono shadow-md"><code>sudo apt update && sudo apt upgrade -y
+sudo ufw allow 80
+sudo ufw allow 443</code></pre>
+                    </div>
+
+                    <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r text-sm text-blue-800 shadow-sm">
+                        <div class="flex">
+                            <i class="fa-solid fa-lock mt-1 mr-3 text-lg"></i>
+                            <div>
+                                <span class="font-bold text-base">Why open these ports?</span>
+                                <p class="mt-1 leading-relaxed">
+                                    Caddy handles SSL automatically, but it needs <strong>Port 80</strong> to verify you own the domain (via Let's Encrypt) and <strong>Port 443</strong> to serve the secure traffic. If these are blocked by a firewall, SSL generation will fail.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 2 -->
+                <section id="step2" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
+                        Install Docker & Docker Compose
+                    </h2>
+                    <p class="text-slate-600 mb-4">Run the official Docker installation script.</p>
+                    
+                    <div class="relative group">
+                        <div class="absolute right-2 top-2">
+                            <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="bg-slate-900 text-emerald-400 p-4 rounded-lg overflow-x-auto text-sm font-mono shadow-md"><code>curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh</code></pre>
+                    </div>
+                </section>
+
+                <!-- Step 3 -->
+                <section id="step3" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
+                        Setup Directory
+                    </h2>
+                    <p class="text-slate-600 mb-4">Create a folder to keep your configuration organized.</p>
+                    
+                    <div class="relative group">
+                        <div class="absolute right-2 top-2">
+                            <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="bg-slate-900 text-emerald-400 p-4 rounded-lg overflow-x-auto text-sm font-mono shadow-md"><code>mkdir ~/n8n-docker
+cd ~/n8n-docker</code></pre>
+                    </div>
+                </section>
+
+                <!-- Step 4 -->
+                <section id="step4" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
+                        Create Configuration Files
+                    </h2>
+                    <p class="text-slate-600 mb-6">You need to create two files inside the <code>~/n8n-docker</code> directory.</p>
+
+                    <!-- File Tabs -->
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+                        <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 font-medium text-sm text-slate-700 flex justify-between items-center">
+                            <span><i class="fa-solid fa-file-code mr-2 text-slate-400"></i> .env</span>
+                            <span class="text-xs text-slate-500">Edit values to match your domain</span>
+                        </div>
+                        <div class="relative group">
+                            <div class="absolute right-2 top-2">
+                                <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre class="bg-slate-900 text-blue-300 p-4 overflow-x-auto text-sm font-mono"><code># --- Configuration ---
+
+# The top level domain (e.g. google.com)
+DOMAIN_NAME=example.com
+
+# The subdomain for n8n (e.g. "n8n" results in n8n.example.com)
+# If you want to use the root domain, leave this empty
+SUBDOMAIN=n8n
+
+# Your Timezone
+# List: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+TIMEZONE=America/New_York</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 font-medium text-sm text-slate-700 flex justify-between items-center">
+                            <span><i class="fa-brands fa-docker mr-2 text-slate-400"></i> docker-compose.yml</span>
+                        </div>
+                        <div class="relative group">
+                            <div class="absolute right-2 top-2">
+                                <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre class="bg-slate-900 text-orange-300 p-4 overflow-x-auto text-sm font-mono"><code>services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    command: caddy reverse-proxy --from https://${SUBDOMAIN}.${DOMAIN_NAME} --to http://n8n:5678
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - n8n
+    networks:
+      - n8n_net
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${TIMEZONE}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n_net
+
+volumes:
+  caddy_data:
+  caddy_config:
+  n8n_data:
+
+networks:
+  n8n_net:</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 5 -->
+                <section id="step5" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">5</span>
+                        Launch
+                    </h2>
+                    <p class="text-slate-600 mb-4">Start the stack in detached mode.</p>
+                    
+                    <div class="relative group">
+                        <div class="absolute right-2 top-2">
+                            <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="bg-slate-900 text-emerald-400 p-4 rounded-lg overflow-x-auto text-sm font-mono shadow-md"><code>docker compose up -d</code></pre>
+                    </div>
+                </section>
+
+                <!-- Verify -->
+                <section id="verify" class="mb-12 scroll-mt-20">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="bg-slate-200 text-slate-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">6</span>
+                        Verify
+                    </h2>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl mb-3">
+                                <i class="fa-solid fa-hourglass-start"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 mb-1">Wait</h3>
+                            <p class="text-sm text-slate-500">Wait 30-60s for containers to start and SSL handshake.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center text-center ring-2 ring-emerald-100">
+                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mb-3">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 mb-1">Check SSL</h3>
+                            <p class="text-sm text-slate-500">Ensure the address bar shows a padlock icon.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-xl mb-3">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 mb-1">Access</h3>
+                            <p class="text-sm text-slate-500">Go to <code>https://n8n.yourdomain.com</code></p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-xl mb-3">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 mb-1">Setup</h3>
+                            <p class="text-sm text-slate-500">Create your Owner account in the n8n UI.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Maintenance -->
+                <section id="maintenance" class="mb-20 scroll-mt-20">
+                    <div class="bg-slate-800 rounded-2xl p-8 text-slate-300">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                            <i class="fa-solid fa-wrench mr-3 text-brand-500"></i>
+                            Maintenance Commands
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="font-semibold text-white mb-2">Stop the server</h3>
+                                <div class="relative group">
+                                    <div class="absolute right-2 top-2">
+                                        <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">Copy</button>
+                                    </div>
+                                    <pre class="bg-black/30 p-3 rounded-lg font-mono text-sm text-emerald-400"><code>docker compose down</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="font-semibold text-white mb-2">Update n8n</h3>
+                                <div class="relative group">
+                                    <div class="absolute right-2 top-2">
+                                        <button onclick="copyCode(this)" class="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-xs transition-colors border border-white/10">Copy</button>
+                                    </div>
+                                    <pre class="bg-black/30 p-3 rounded-lg font-mono text-sm text-emerald-400"><code>docker compose pull
+docker compose up -d</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+        <i class="fa-solid fa-check-circle text-green-400 mr-2"></i>
+        <span>Copied to clipboard!</span>
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
